@@ -13,10 +13,12 @@
 
 int RUNNING = 0;
 SDL_Surface *frames[80] = {NULL};
+SDL_Event event;
 
 
 void load_images();
 void clean_images();
+void cancelOnKeyPress();
 
 
 static void terminateHandler(int signal){
@@ -65,6 +67,7 @@ int main(int argc, char *argv[]){
 
     while(RUNNING){
         start = SDL_GetTicks();
+        cancelOnKeyPress();
         SDL_FillRect(background, NULL, 0x000000);
         SDL_BlitSurface(frames[i], NULL, background, &pos);
         SDL_BlitSurface(background, NULL, screen, NULL);
@@ -89,8 +92,7 @@ void load_images(){
     int i = 0;
     char str[46] = "\0";
     for(i = 0; i < 80; i++){
-        sprintf(str, "/home/adam/git/rpi_logo/rpi_frames/frame_%02d.png", i);
-        //printf("loading image: %s\n", str);
+        sprintf(str, "/home/adam/git/rpi_frames/frame_%02d.png", i);
         frames[i] = IMG_Load(str);
         if(frames[i] == NULL){
             printf("could not load image: %s\n", str);
@@ -104,4 +106,25 @@ void clean_images(){
     for(i = 0; i < 80; i++){
         SDL_FreeSurface(frames[i]);
     }
+}
+
+
+void cancelOnKeyPress(){
+	if(SDL_PollEvent(&event) != 0){
+		if(event.type == SDL_QUIT){
+			RUNNING = 0;
+		}
+		else if(event.type == SDL_KEYDOWN) {
+			RUNNING = 0;
+/*			switch(event.key.keysym.sym) {
+				case SDLK_ESCAPE:
+					RUNNING = 0;
+				break;
+				case SDLK_DOWN:
+				break;
+				default:
+				break;
+			}*/
+		}
+	}
 }
