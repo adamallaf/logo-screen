@@ -3,6 +3,9 @@
 #include <signal.h>
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
+#include "SDL/SDL_ttf.h"
+#include "get_ip.h"
+#include "utils.h"
 
 
 #define     FPS         20
@@ -36,6 +39,7 @@ int main(int argc, char *argv[]){
 
     SDL_Surface *screen = NULL;
     SDL_Surface *background = NULL;
+    SDL_Surface *text_surface = NULL;
 
     load_images();
 
@@ -43,6 +47,10 @@ int main(int argc, char *argv[]){
         puts("could not start SDL");
     }
     SDL_ShowCursor(SDL_DISABLE);
+
+    if ( TTF_Init() == -1){
+        puts("could not init TTF");
+    }
 
     screen = SDL_SetVideoMode(WIDTH, HEIGHT, DEPTH, SDL_SWSURFACE);
     if ( screen == NULL){
@@ -59,7 +67,11 @@ int main(int argc, char *argv[]){
 
     int i = 0;
     unsigned int start;
+    char *ttf_path = NULL;
     background = SDL_CreateRGBSurface(0, WIDTH, HEIGHT, DEPTH, 0, 0, 0, 0);
+	ttf_path = concat(get_path(argv[0]), "ubuntu.ttf");
+	TTF_Font *font = TTF_OpenFont(ttf_path, 12);
+	text_surface = TTF_RenderText_Solid(font, get_ip("wlan0"), (SDL_Color){0, 255, 0});
 
     SDL_Rect pos;
     pos.x = WIDTH / 2 - 64;
@@ -70,6 +82,7 @@ int main(int argc, char *argv[]){
         cancelOnKeyPress();
         SDL_FillRect(background, NULL, 0x000000);
         SDL_BlitSurface(frames[i], NULL, background, &pos);
+        SDL_BlitSurface(text_surface, NULL, background, NULL);
         SDL_BlitSurface(background, NULL, screen, NULL);
         i = (i + 1) % 80;
         SDL_Flip(screen);
@@ -78,10 +91,16 @@ int main(int argc, char *argv[]){
         }
     }
 
+    if(ttf_path)
+        free(ttf_path);
+
+	TTF_CloseFont(font);
+    SDL_FreeSurface(text_surface);
     SDL_FreeSurface(background);
 
     clean_images();
 
+	TTF_Quit();
     SDL_Quit();
 
     return 0;

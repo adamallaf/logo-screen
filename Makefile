@@ -9,13 +9,13 @@ OBJDIR = obj
 
 OPT = -O2
 
-LIBS = -lSDL -lSDL_image
+LIBS = -lSDL -lSDL_image -lSDL_ttf
 
 CFLAGS = $(OPT) -Wall $(DEBUGINFO) $(LIBS)
 
 BIN = rpi_logo.out
 
-OBJS = main.o
+OBJS = main.o get_ip.o utils.o
 
 TARGET = $(DEBUG)
 
@@ -23,9 +23,11 @@ all: $(TARGET)
 
 debug: debug_dirs $(OBJS)
 	$(CC) $(CFLAGS) -o $(DEBUG)/$(BIN) $(addprefix $(OBJDIR)/,$(OBJS))
+	cp Ubuntu-Regular.ttf $(DEBUG)/ubuntu.ttf
 
 release: release_dirs $(OBJS)
 	$(CC) $(CFLAGS) -o $(RELEASE)/$(BIN) $(addprefix $(OBJDIR)/,$(OBJS))
+	cp Ubuntu-Regular.ttf $(RELEASE)/ubuntu.ttf
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $(OBJDIR)/$@
